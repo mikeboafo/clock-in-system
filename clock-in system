@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+struct User {
+    int id;
+    char name[50];
+    char password[50];
+    int isAdmin;
+};
+
+
+struct TimeLog {
+    int userId;
+    char action[10];
+};
+
+
+int authenticateUser(char* id, char* password, struct User users[], int userCount) {
+    for (int i = 0; i < userCount; ++i) {
+        if (strcmp(users[i].name, id) == 0 && strcmp(users[i].password, password) == 0) {
+
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+void logTime(int userId, char* action, struct TimeLog timeLogs[], int *logCount) {
+
+    printf("User %d %s at timestamp %d\n", userId, action, *logCount);
+
+    timeLogs[*logCount].userId = userId;
+    strcpy(timeLogs[*logCount].action, action);
+    (*logCount)++;
+}
+
+void displayTimeLogs(struct TimeLog timeLogs[], int logCount) {
+    printf("\nTime Logs:\n");
+    for (int i = 0; i < logCount; ++i) {
+        printf("User %d %s at timestamp %d\n", timeLogs[i].userId, timeLogs[i].action, i + 1);
+    }
+}
+
+int main() {
+
+    struct User users[] = { {1, "user1", "password1", 0}, {2, "admin", "adminpassword", 1} };
+    int userCount = sizeof(users) / sizeof(users[0]);
+
+    struct TimeLog timeLogs[100];
+    int logCount = 0;
+
+
+    char adminId[50];
+    char adminPassword[50];
+
+    printf("Admin Login:\nEnter admin ID: ");
+    scanf("%s", adminId);
+
+    printf("Enter admin password: ");
+    scanf("%s", adminPassword);
+
+    int loggedInAdminIndex = authenticateUser(adminId, adminPassword, users, userCount);
+
+    if (loggedInAdminIndex != -1 && users[loggedInAdminIndex].isAdmin) {
+        printf("Welcome, Admin!\n");
+
+
+        displayTimeLogs(timeLogs, logCount);
+    } else {
+
+        char userId[50];
+        char password[50];
+
+        printf("Employee Login:\nEnter user ID: ");
+        scanf("%s", userId);
+
+        printf("Enter password: ");
+        scanf("%s", password);
+
+        int loggedInUserIndex = authenticateUser(userId, password, users, userCount);
+
+        if (loggedInUserIndex != -1) {
+            printf("Authentication successful!\n");
+
+
+            logTime(users[loggedInUserIndex].id, "login", timeLogs, &logCount);
+
+            logTime(users[loggedInUserIndex].id, "logout", timeLogs, &logCount);
+        } else {
+            printf("Authentication failed!\n");
+        }
+    }
+
+    return 0;
+}
